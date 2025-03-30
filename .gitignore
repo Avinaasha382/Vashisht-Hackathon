@@ -1,0 +1,18 @@
+# Ignore specific folders
+/node_modules/
+/dist/
+/build/
+/.cache/
+/.vscode/
+/.idea/
+/logs/
+/tmp/
+/__pycache__/
+/venv/
+/.venv/
+/env/
+/.env/
+/.DS_Store
+/env1
+/archive
+/Database
