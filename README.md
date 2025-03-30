@@ -1,4 +1,4 @@
-# Virtual Legal Assistant @VASHIST HACKATHON
+# Virtual Legal Assistant @VASHISHT HACKATHON
 
 ## 📌 Project Overview
 
