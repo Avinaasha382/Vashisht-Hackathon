@@ -77,7 +77,7 @@ def handle_request(mode):
         result = search_case(data, case_id_to_search)
 
         if result:
-            folder_name = case_id_to_search[:4]  # Extract the first 4 characters
+            folder_name = case_id_to_search[:4]  
             case_filename = f"{case_id_to_search}.txt"
             case_filepath = os.path.join("Database", folder_name, case_filename)
             os.makedirs(os.path.dirname(case_filepath), exist_ok=True)
@@ -99,7 +99,6 @@ def handle_request(mode):
 
         text = uploaded_file.read().decode('utf-8')
 
-        # Ensure text is within a reasonable length for the model
         max_input_length = 1024  
         if len(text) > max_input_length:
             text = text[:max_input_length]
