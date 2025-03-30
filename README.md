@@ -1,4 +1,4 @@
-# Virtual Lawyer Chatbot
+# Virtual Lawyer @VASHIST HACKATHON
 
 ## 📌 Project Overview
 
@@ -26,8 +26,8 @@ Vashisht-Hackathon/
       |-- question_embeddings.npy
       |-- questions.json
     |-- Database.zip 
-    |-- Final.json 
-    |-- Data.json               # Sentence Transformer model & embeddings
+    |-- Final.json           #contains metadata of cases procured by preprocessing thousands of cases
+    |-- Data.json              
 │-- frontend/                # Frontend Code (HTML, CSS, JS)
 │   │-- index.html           # Main UI
     │-- script.js            # Client-side JavaScript
