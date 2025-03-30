@@ -2,14 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeButtons = document.querySelectorAll('.mode-button');
     const qaSearchInput = document.querySelector('.qa-search-input');
     const documentUpload = document.querySelector('.document-upload');
-    const qaInput = document.getElementById('qa-input'); // Input for Q/A & Search
-    const documentInput = document.getElementById('document-input'); // Input for Document mode
+    const qaInput = document.getElementById('qa-input');
+    const documentInput = document.getElementById('document-input');
     const qaForm = document.getElementById('qa-form');
     const documentForm = document.getElementById('document-form');
     const dropZone = document.getElementById('drop-zone');
     const resultsPlaceholder = document.querySelector('.results-placeholder');
     let currentMode = 'qa'; // Default mode
     let uploadedFile = null;
+    let typingInterval = null; // To store the typing interval
 
     // Mode switching
     modeButtons.forEach(button => {
@@ -33,11 +34,101 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form submission for Q/A & Search Cases
+    // Simple typing effect function
+    function typeText(element, text) {
+        // Clear any existing typing interval
+        if (typingInterval) {
+            clearInterval(typingInterval);
+        }
+        
+        // Clear the element
+        element.textContent = '';
+        
+        // For plain text, do character-by-character typing
+        let i = 0;
+        typingInterval = setInterval(() => {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                // Auto-scroll to keep up with the typing
+                element.scrollTop = element.scrollHeight;
+            } else {
+                clearInterval(typingInterval);
+                typingInterval = null;
+            }
+        }, 20); // Adjust typing speed here (lower = faster)
+    }
+    
+    // Type HTML content character by character
+    function typeHTML(element, htmlContent) {
+        // Clear the element
+        element.innerHTML = '';
+        
+        // Create a DOM parser to work with the HTML content
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${htmlContent}</div>`, 'text/html');
+        const contentNodes = Array.from(doc.body.firstChild.childNodes);
+        
+        let currentNodeIndex = 0;
+        let currentTextIndex = 0;
+        let currentNode = null;
+        
+        // Clear any existing interval
+        if (typingInterval) {
+            clearInterval(typingInterval);
+            typingInterval = null;
+        }
+        
+        // Function to process the next node
+        function processNextNode() {
+            if (currentNodeIndex >= contentNodes.length) {
+                // We've processed all nodes
+                clearInterval(typingInterval);
+                typingInterval = null;
+                return;
+            }
+            
+            currentNode = contentNodes[currentNodeIndex];
+            
+            if (currentNode.nodeType === Node.TEXT_NODE) {
+                // This is a text node, add one character at a time
+                if (currentTextIndex < currentNode.textContent.length) {
+                    const textFragment = currentNode.textContent.substring(0, currentTextIndex + 1);
+                    const existingNode = element.childNodes[element.childNodes.length - 1];
+                    
+                    if (existingNode && existingNode.nodeType === Node.TEXT_NODE) {
+                        existingNode.textContent = textFragment;
+                    } else {
+                        element.appendChild(document.createTextNode(textFragment));
+                    }
+                    
+                    currentTextIndex++;
+                } else {
+                    // Move to the next node
+                    currentNodeIndex++;
+                    currentTextIndex = 0;
+                }
+            } else {
+                // This is an HTML element, add it entirely
+                element.appendChild(currentNode.cloneNode(true));
+                currentNodeIndex++;
+                currentTextIndex = 0;
+            }
+            
+            // Auto-scroll
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        // Start the typing interval
+        typingInterval = setInterval(processNextNode, 20);
+    }// Form submission for Q/A & Search Cases
     qaForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const inputText = qaInput.value.trim();
         if (!inputText) return;
+
+        // Show "Thinking..." message
+        resultsPlaceholder.textContent = "Thinking...";
 
         let apiUrl = `http://127.0.0.1:5000/api/${currentMode}`;
         let requestOptions = {
@@ -55,71 +146,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.answer) {
                 // Display the found case details
-                if(currentMode === "search")
-                {
-                    const caseDetails = document.createElement("div"); // Use a div instead of pre
-                caseDetails.style.textAlign = "left"; // Ensure left alignment
-                caseDetails.style.fontFamily = "Arial, sans-serif"; // Better readability
-                caseDetails.style.lineHeight = "1.6"; // Improve spacing
-                caseDetails.style.padding = "10px"; // Add padding for spacing
-            
-                // Pretty-print the case details
-                let formattedText = "";
-                for (const [key, value] of Object.entries(result.answer)) {
-                    let formattedKey = `<strong style="font-size: 16px; color: #333;">${key}:</strong> `;
-                    if (Array.isArray(value)) {
-                        formattedText += `${formattedKey}<ul style="margin: 5px 0 10px 20px;">` + 
-                            value.map(item => `<li>${item}</li>`).join("") + 
-                            `</ul>`;
-                    } else {
-                        formattedText += `<p style="margin: 5px 0;"><strong>${formattedKey}</strong> ${value}</p>`;
-                    }
-                }
-            
-                caseDetails.innerHTML = formattedText;
-                resultsPlaceholder.appendChild(caseDetails);
-
-                }
-                else
-                {
-                    const caseDetails = document.createElement("p");
-                    caseDetails.textContent = JSON.stringify(result.answer, null, 2);
+                if(currentMode === "search") {
+                    const caseDetails = document.createElement("div");
+                    caseDetails.style.textAlign = "left";
+                    caseDetails.style.fontFamily = "Arial, sans-serif";
+                    caseDetails.style.lineHeight = "1.6";
+                    caseDetails.style.padding = "10px";
                     resultsPlaceholder.appendChild(caseDetails);
-                }
-                // Create the Download button (Only for search mode)
-                if (currentMode === "search" && result.download_link) {
-                    const downloadButton = document.createElement("button");
-                    downloadButton.textContent = "Download Case";
-                    downloadButton.classList.add("download-btn");
-
-                    // Add event listener for downloading the file
-                    downloadButton.addEventListener("click", async () => {
-                        const downloadResponse = await fetch(result.download_link);
-                        if (downloadResponse.ok) {
-                            const blob = await downloadResponse.blob();
-                            const url = URL.createObjectURL(blob);
-                            console.log(url);
-                            // Create an anchor element to trigger the download
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = `${inputText}.txt`; // Name the file as case_id.txt
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
+                    
+                    // Pretty-print the case details
+                    let formattedHTML = "";
+                    for (const [key, value] of Object.entries(result.answer)) {
+                        let formattedKey = `<strong style="font-size: 16px; color: var(--dark-text);">${key}:</strong> `;
+                        if (Array.isArray(value)) {
+                            formattedHTML += `${formattedKey}<ul style="margin: 5px 0 10px 20px;">` + 
+                                value.map(item => `<li>${item}</li>`).join("") + 
+                                `</ul>`;
                         } else {
-                            alert("Failed to download the case file.");
+                            formattedHTML += `<p style="margin: 5px 0;">${formattedKey} ${value}</p>`;
                         }
-                    });
+                    }
+                    
+                    // Type HTML content character by character
+                    typeHTML(caseDetails, formattedHTML);
+                    
+                    // Add download button after the content is displayed
+                    if (result.download_link) {
+                        setTimeout(() => {
+                            const downloadButton = document.createElement("button");
+                            downloadButton.textContent = "Download Case";
+                            downloadButton.style.marginTop = "10px";
+                            downloadButton.style.padding = "8px 16px";
+                            downloadButton.style.cursor = "pointer";
 
-                    resultsPlaceholder.appendChild(downloadButton);
+                            // Add event listener for downloading the file
+                            downloadButton.addEventListener("click", async () => {
+                                const downloadResponse = await fetch(result.download_link);
+                                if (downloadResponse.ok) {
+                                    const blob = await downloadResponse.blob();
+                                    const url = URL.createObjectURL(blob);
+                                    // Create an anchor element to trigger the download
+                                    const a = document.createElement("a");
+                                    a.href = url;
+                                    a.download = `${inputText}.txt`;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    URL.revokeObjectURL(url);
+                                } else {
+                                    alert("Failed to download the case file.");
+                                }
+                            });
+
+                            resultsPlaceholder.appendChild(downloadButton);
+                        }, 1000); // Add button after typing animation is likely done
+                    }
+                } else {
+                    // For QA mode - type the text response
+                    typeText(resultsPlaceholder, result.answer);
                 }
             } else {
-                resultsPlaceholder.innerHTML = "<p>Case not found.</p>";
+                typeText(resultsPlaceholder, "Case not found.");
             }
         } catch (error) {
             console.error('Error:', error);
-            resultsPlaceholder.textContent = "Error processing request.";
+            typeText(resultsPlaceholder, "Error processing request.");
         }
 
         qaInput.value = '';
@@ -134,6 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Show thinking state
+        resultsPlaceholder.textContent = "Thinking...";
+
         let apiUrl = `http://127.0.0.1:5000/api/document`;
         let formData = new FormData();
         formData.append('question', inputText);
@@ -144,10 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
             const result = await response.json();
-            resultsPlaceholder.textContent = result.answer || "No response received.";
+            typeText(resultsPlaceholder, result.answer || "No response received.");
         } catch (error) {
             console.error('Error:', error);
-            resultsPlaceholder.textContent = "Error processing request.";
+            typeText(resultsPlaceholder, "Error processing request.");
         }
 
         documentInput.value = '';
