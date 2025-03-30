@@ -1,8 +1,8 @@
-# Virtual Lawyer @VASHIST HACKATHON
+# Virtual Legal Assistant @VASHIST HACKATHON
 
 ## 📌 Project Overview
 
-The **Virtual Lawyer Chatbot** is a web-based legal assistant that helps users:
+The **Virtual Legal Assistant** is a web-based legal assistant that helps users:
 
 - Ask legal questions and get AI-generated answers (Q/A mode)
 - Search for relevant legal cases (Search Cases mode)
