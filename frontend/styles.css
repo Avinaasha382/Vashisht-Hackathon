@@ -246,7 +246,7 @@ input[type="text"]:focus {
 }
 
 .results-placeholder {
-    text-align: center;
+    text-align: justify;
     color: var(--dark-text-tertiary);
     padding: 2rem 0;
 }

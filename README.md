@@ -18,16 +18,20 @@ The frontend is built with **HTML, JavaScript, and CSS**, while the backend is p
 ```plaintext
 Vashisht-Hackathon/
 │-- backend/                 # Flask Backend API
-│   │-- app.py               # Main Flask app
+│   │-- backend.py               # Main Flask app
 │   │-- requirements.txt     # Python dependencies
-│   │-- qa_model/
+    │-- qa_model/kaggle/working/  #Fine Tuned Model along with vector embeddings
+      |-- sentence_transformer/
+      |-- answers.json
+      |-- question_embeddings.npy
+      |-- questions.json
     |-- Database.zip 
     |-- Final.json 
     |-- Data.json               # Sentence Transformer model & embeddings
 │-- frontend/                # Frontend Code (HTML, CSS, JS)
 │   │-- index.html           # Main UI
-│   │-- script.js            # Client-side JavaScript
-│   │-- styles.css           # Styling
+    │-- script.js            # Client-side JavaScript
+    │-- styles.css           # Styling
 │-- README.md                # Documentation
 ```
 
@@ -49,6 +53,8 @@ Vashisht-Hackathon/
 - Sklearn (Cosine Similarity for question matching)
 - Thresholding for prevention of garbage values.
 - Numpy & JSON for data handling
+- Using **Regex** and **NLP** for creating and curating a custom dataset that acts as an header to the original Database
+- Using Torch and Sentence Transformers a fine tuned model was created with embeddings saved in qa_model for fast fetching 
 
 ---
 
@@ -57,11 +63,15 @@ Vashisht-Hackathon/
 ### **1️⃣ Clone the Repository**
 
 ```bash
-git clone https://github.com/yourusername/virtual-lawyer-chatbot.git
-cd virtual-lawyer-chatbot
+git clone https://github.com/APillai03/Vashisht-Hackathon
+cd Vashisht-Hackathon
+```
+### **2️⃣ Extract Database.zip**
+```bash
+tar -xf "backend\Database.zip" -C "backend"
 ```
 
-### **2️⃣ Setup Backend (Flask API)**
+### **3️⃣ Setup Backend (Flask API)**
 
 #### **🔹 Install Python Dependencies**
 
@@ -74,19 +84,19 @@ source env1/bin/activate  # (For macOS/Linux)
 env1\Scripts\activate  # (For Windows)
 pip install -r requirements.txt  # Install dependencies
 ```
-### **3️⃣ Extract Database.zip**
+
 
 #### **🔹 Start the Flask Server**
 
 ```bash
-python app.py
+python backend.py
 ```
 
 The API will start at `http://127.0.0.1:5000`
 
 ### **4️⃣ Setup Frontend**
 
-No dependencies required! Just open `frontend/index.html` in a browser.
+No Hassle with React No TS no Tailwind No dependencies required! Just open `frontend/index.html` in a browser.
 
 
 ---
@@ -103,7 +113,7 @@ POST /api/qa
 
 ```json
 {
-  "question": "What is contract law?"
+  "question": "What are the rights of citizenship for certain persons of Indian origin residing outside India?"
 }
 ```
 
@@ -111,7 +121,7 @@ POST /api/qa
 
 ```json
 {
-  "answer": "Contract law is a legal framework governing agreements between parties."
+  "answer": "Any person who or either of whose parents or any of whose grand-parents was born in India as defined in the Government of India Act, 1935, and who is ordinarily residing in any country outside India as so defined shall be deemed to be a citizen of India if he has been registered as a citizen of India by the diplomatic or consular representative of India in the country where he is residing."
 }
 ```
 
@@ -122,6 +132,9 @@ POST /api/search
 ```
 
 Similar to Q/A mode but searches in legal case data.
+- This feature was implemented by using data reduction from case_files to Header by using NLP and regex model to extract usable data; 
+- Then binary search is performed on the names of the cases. The output is the metadata of that particular case and follwed by it is a download case button; 
+- Which will serve the actual case file as dictated by the presiding Judge. 
 
 ### **3️⃣ Document Answering Mode** (Upload document & get answers)
 
@@ -129,7 +142,9 @@ Similar to Q/A mode but searches in legal case data.
 POST /api/document
 ```
 
-**Request Body:** FormData with `file`.
+**Request Body:** FormData with request as a `file`. 
+- The backend uses a finetuned Facebook Bart model to summarize the given document;
+- Saving the hassle to go through thousands of lines of case files
 
 ---
 
@@ -148,6 +163,7 @@ POST /api/document
 - Improve response accuracy using **fine-tuned legal datasets**.
 - Add **OCR support** for extracting text from images.
 - Integrate **speech-to-text** for voice-based input.
+- Add a functionality to understand the context of Users Case and go through millions of Cases and suggest a better outcome
 
 ---
 
