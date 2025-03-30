@@ -118,7 +118,7 @@ POST /api/qa
 ### **2️⃣ Search Cases Mode** (Legal case search)
 
 ```http
-POST /api/search_cases
+POST /api/search
 ```
 
 Similar to Q/A mode but searches in legal case data.
@@ -126,10 +126,10 @@ Similar to Q/A mode but searches in legal case data.
 ### **3️⃣ Document Answering Mode** (Upload document & get answers)
 
 ```http
-POST /api/document_answering
+POST /api/document
 ```
 
-**Request Body:** Multipart FormData with `question` and `file`.
+**Request Body:** FormData with `file`.
 
 ---
 
