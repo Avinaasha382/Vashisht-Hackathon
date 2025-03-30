@@ -7,7 +7,7 @@ The **Virtual Legal Assistant** is a web-based legal assistant that helps users:
 - Ask legal questions and get AI-generated answers (Q/A mode)
 - Search for relevant legal cases (Search Cases mode)
 - Upload a document and get AI-generated responses based on its content (Document Answering mode)
-- **Multilingual Support**!!! Not Comfirtable with English, Dont Worry we got you with multilingual support in thousands of languages
+- **Multilingual Support**!!! Not Comfortable with English, Dont Worry we got you with multilingual support in thousands of languages
 
 The frontend is built with **HTML, JavaScript, and CSS**, while the backend is powered by **Flask, Sentence Transformers, Facebook Bart** for AI-driven responses.
 
@@ -167,22 +167,4 @@ POST /api/document
 - Add **OCR support** for extracting text from images.
 - Integrate **speech-to-text** for voice-based input.
 - Add a functionality to understand the context of Users Case and go through millions of Cases and suggest a better outcome
-
----
-
-## 🤝 Contributing
-
-Feel free to submit **issues** or **pull requests** to improve this project!
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**.
-
----
-
-## 📧 Contact
-
-For queries, reach out at [**adityapillai0803@gmail.com**](mailto\:adityapillai0803@gmail.com) or open an issue on GitHub!
 
